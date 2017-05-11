@@ -24,10 +24,13 @@
   },
   "devDependencies": {
     "chai": "^3.5.0",
+    "cheerio": "^0.22.0",
+    "child-process-promise": "^2.2.1",
     "coveralls": "^2.13.1",
     "fs-extra": "^3.0.1",
     "mocha": "^3.3.0",
     "nyc": "^10.3.2",
+    "request-promise": "^4.2.1",
     "tmp-promise": "^1.0.3"
   }
 }

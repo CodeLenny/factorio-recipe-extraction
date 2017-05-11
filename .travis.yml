@@ -14,4 +14,8 @@ before_install:
   - export CXX=g++-4.8
   - $CXX --version
 
+script:
+  - node test/assets/download-headless-data.js
+  - npm test
+
 after_success: npm run coverage
