@@ -1,1 +1,4 @@
+.nyc_output/
+coverage/
 node_modules/
+test/assets/factorio-data/
