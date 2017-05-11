@@ -10,4 +10,8 @@ addons:
       - lua5.1-dev
       - g++-4.8
 
+before_install:
+  - export CXX=g++-4.8
+  - $CXX --version
+
 after_success: npm run coverage
