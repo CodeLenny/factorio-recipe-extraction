@@ -4,7 +4,10 @@ node_js:
 
 addons:
   apt:
+    sources:
+      - ubuntu-toolchain-r-test
     packages:
       - lua5.1-dev
+      - g++-4.8
 
 after_success: npm run coverage
