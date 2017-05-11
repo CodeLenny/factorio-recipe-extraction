@@ -19,6 +19,7 @@ class DummyMod extends Mod {
     mod.manifest = manifest;
     return mod;
   }
+  constructor() { super({}); }
 }
 
 describe("ModuleLoader#all", function() {

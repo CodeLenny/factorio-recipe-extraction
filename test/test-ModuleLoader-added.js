@@ -13,6 +13,7 @@ class DummyMod extends Mod {
     mod.zip = zip;
     return mod;
   }
+  constructor() { super({}); }
 }
 
 describe("ModuleLoader#added", function() {
