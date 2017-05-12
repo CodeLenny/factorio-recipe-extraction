@@ -155,13 +155,8 @@ class ModuleLoader {
           for(let m = 0; m < mods.length; m++) {
             if(adjacencyMatrix[modIndex][m] === 0) { continue; }
             adjacencyMatrix[modIndex][m] = 0;
-            let incoming = false;
-            for(let i = 0; i < mods.length; i++) {
-              if(adjacencyMatrix[i][m] === 1) {
-                incoming = true; break;
-              }
-            }
-            if(!incoming) { s.push(mods[m]); }
+            let resolved = mods.every((_, i) => adjacencyMatrix[i][m] === 0);
+            if(resolved) { s.push(mods[m]); }
           }
         }
 
