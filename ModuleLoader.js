@@ -122,13 +122,45 @@ class ModuleLoader {
    * @return {Promise<ModArray>} resolves to a sorted list of the given mods.
    * @see {@link https://bitbucket.org/Nicksaurus/foreman/src/46053df/Foreman/DependencyGraph.cs#DependencyGraph.cs-43}
    * @todo figure out sorting order
-   * @todo Implement
   */
   sortedDependencies(mods) {
     if(!mods) { mods = this.all(); }
     return Promise
       .resolve(mods)
-      .then((mods) => mods);
+      .then((mods) => {
+
+        let sorted = [];
+
+        let adjacencyMatrix = mods.map(i => mods.map(j => i.dependsOn(j) ? 1 : 0));
+
+        // Get all mods with no incomming dependencies
+        let s = mods.filter((mod, i) => mods.every((mod2, j) => adjacencyMatrix[j][i] !== 1 ));
+
+        /**
+         * Loop through mods that have no dependencies, or have dependencies already resolved.
+         * Add each to a sorted array, and see if any dependencies in the matrix now have resolved dependencies.
+        */
+        while(s.length > 0) {
+          let mod = s.shift();
+          sorted.push(mod);
+          let modIndex = mods.indexOf(mod);
+
+          for(let m = 0; m < mods.length; m++) {
+            if(adjacencyMatrix[modIndex][m] === 0) { continue; }
+            adjacencyMatrix[modIndex][m] = 0;
+            let incoming = false;
+            for(let i = 0; i < mods.length; i++) {
+              if(adjacencyMatrix[i][m] === 1) {
+                incoming = true; break;
+              }
+            }
+            if(!incoming) { s.push(mods[m]); }
+          }
+        }
+
+        return sorted.reverse();
+
+      });
   }
 
   /**
