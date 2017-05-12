@@ -73,4 +73,15 @@ describe("ModuleLoader#sortedDependencies", function() {
 
   });
 
+  it("should work with broad trees", function() {
+    let ind = new Mod({ name: "ind", version: "0.0.0.0" });
+    let a = new Mod({ name: "a", dependencies: [ "ind = 0.0.0.0" ]});
+    let b = new Mod({ name: "b", dependencies: [ "ind = 0.0.0.0" ]});
+
+    return new ModuleLoader().sortedDependencies([a, ind, b]).then(list => {
+      list.length.should.equal(3);
+      list.indexOf(ind).should.equal(0);
+    });
+  });
+
 });
