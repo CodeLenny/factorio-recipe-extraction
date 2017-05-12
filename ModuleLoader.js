@@ -133,7 +133,7 @@ class ModuleLoader {
 
         let adjacencyMatrix = mods.map(i => mods.map(j => i.dependsOn(j) ? 1 : 0));
 
-        // Get all mods with no incomming dependencies
+        // Get all mods with no incoming dependencies
         let s = mods.filter((mod, i) => mods.every((mod2, j) => adjacencyMatrix[j][i] !== 1 ));
 
         /**
@@ -145,6 +145,13 @@ class ModuleLoader {
           sorted.push(mod);
           let modIndex = mods.indexOf(mod);
 
+          /**
+           * Loop through all mods.  If they were dependent on us, we've already been added to the sorted list and they
+           * should no longer be waiting for us.
+           * So, remove that dependency if we find one.  Now that they are waiting for one less item, see if all of the
+           * dependencies have been added.  If so, they can be added to the list of resolved mods (`s`) and added to the
+           * output in a later round.
+          */
           for(let m = 0; m < mods.length; m++) {
             if(adjacencyMatrix[modIndex][m] === 0) { continue; }
             adjacencyMatrix[modIndex][m] = 0;
