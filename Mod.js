@@ -1,3 +1,5 @@
+const path = require("path");
+
 /**
  * An array of Factorio Mods, useful for documenting return types inside Promises.
  * Use `{Promise<ModArray>}` instead of `{Promise<Array<Mod>>}`.
@@ -36,9 +38,7 @@ class Mod {
    * @return {Promise<Mod>}
   */
   static loadFromManifest(manifest) {
-    let mod = new Mod();
-    mod.manifest = require(manifest);
-    return Promise.resolve(mod);
+    return Promise.resolve(new Mod(require(path.join(manifest, "info.json"))));
   }
 
   /**
