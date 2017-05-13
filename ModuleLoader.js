@@ -104,7 +104,6 @@ class ModuleLoader {
    * @param {ModArray} [mods] **Optional** The mods to filter.  Defaults to searching for all mods.
    * @param {ModuleLoaderOptions} [opts] options to control searching for mods.
    * @return {Promise<ModArray>} all mods installed and enabled.
-   * @todo Test
   */
   enabled(mods, opts) {
     opts = this.parseOpts(opts);
@@ -117,11 +116,10 @@ class ModuleLoader {
   }
 
   /**
-   * Sort Factorio mods (by unknown sorting method)
+   * Sort Factorio mods, so mods with dependencies are loaded after the dependencies.
    * @param {ModArray} [mods] **Optional** The mods to sort.  Defaults to searching for all mods.
    * @return {Promise<ModArray>} resolves to a sorted list of the given mods.
    * @see {@link https://bitbucket.org/Nicksaurus/foreman/src/46053df/Foreman/DependencyGraph.cs#DependencyGraph.cs-43}
-   * @todo figure out sorting order
   */
   sortedDependencies(mods) {
     if(!mods) { mods = this.all(); }
