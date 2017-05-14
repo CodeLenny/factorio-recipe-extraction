@@ -54,7 +54,7 @@ class Mod {
   static loadFromZip(zip) {
     let tmpDir = null;
     return tmp
-      .dir({ keep: true, unsafeCleanup: true })
+      .dir({ unsafeCleanup: true })
       .then(o => tmpDir = o)
       .then(tmpDir => {
         return fs
