@@ -23,8 +23,6 @@
     "glob-promise": "^3.1.0",
     "nodelua": "github:huuugegames/NodeLua",
     "tmp-promise": "^1.0.3",
-    "unzip": "^0.1.11",
-    "unzip-stream": "^0.1.2",
     "unzipper": "^0.8.8"
   },
   "devDependencies": {
