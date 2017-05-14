@@ -131,7 +131,7 @@ class Mod {
    * @return {Promise} resolves when all temporary files have been cleaned up.
   */
   cleanup() {
-    return Promise.all(this._cleanupTasks);
+    return Promise.all(this._cleanupTasks.map(task => task()));
   }
 
   /**

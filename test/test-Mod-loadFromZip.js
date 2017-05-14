@@ -1,6 +1,7 @@
 const chai = require("chai");
 const should = chai.should();
 
+const fs = require("fs-extra");
 const path = require("path");
 const Mod = require("../Mod");
 const Download5Dim = require("./assets/5dim");
@@ -18,14 +19,6 @@ describe("Mod.loadFromZip", function() {
       .then(([z, c]) => [modzip, modcontents] = [z, c]);
   });
 
-  afterEach(function() {
-    let chain = Promise.resolve();
-    if(mod) {
-      chain.then(() => mod.cleanup());
-    }
-    return chain;
-  });
-
   it("loads", function() {
     let info = require(`${modcontents}/info.json`);
     return Mod
@@ -34,8 +27,10 @@ describe("Mod.loadFromZip", function() {
         mod = m;
         mod.should.be.an.instanceof(Mod);
         mod.manifest.should.deep.equal(info);
-        return mod.cleanup();
-      });
+        mod.cleanup();
+      })
+      .then(() => fs.pathExists(mod.dir))
+      .then(exists => exists.should.equal(false));
   });
 
 });
