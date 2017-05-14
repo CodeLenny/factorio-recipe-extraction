@@ -42,7 +42,8 @@ class Mod {
    * @return {Promise<Mod>}
   */
   static loadFromManifest(dir) {
-    return Promise.resolve(new Mod(require(path.join(dir, "info.json"))));
+    mod = new Mod(require(path.join(dir, "info.json")));
+    return Promise.resolve(mod);
   }
 
   /**
