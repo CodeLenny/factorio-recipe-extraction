@@ -42,7 +42,7 @@ class Mod {
    * @return {Promise<Mod>}
   */
   static loadFromManifest(dir) {
-    mod = new Mod(require(path.join(dir, "info.json")));
+    let mod = new Mod(require(path.join(dir, "info.json")), dir);
     return Promise.resolve(mod);
   }
 
@@ -65,7 +65,7 @@ class Mod {
       .then(() => fs.readdir(tmpDir.path))
       .then(files => files[0])
       .then(dir => {
-        let mod = new Mod(require(path.join(tmpDir.path, dir, "info.json")));
+        let mod = new Mod(require(path.join(tmpDir.path, dir, "info.json")), path.join(tmpDir.path, dir));
         mod.addCleanup(tmpDir.cleanup);
         return mod;
       });
@@ -91,9 +91,11 @@ class Mod {
 
   /**
    * @param {Object} manifest the manifest file for this mod.
+   * @param {String} directory the location for mod files.
   */
-  constructor(manifest) {
+  constructor(manifest, directory) {
     this.manifest = manifest;
+    this.dir = directory;
     /**
      * Other mods that this mod is dependent on.
      * @type {Array<ModDependency>}
