@@ -101,7 +101,9 @@ class Download5Dim {
   */
   static downloadContent(commit) {
     let downloaded = this.downloadZip(commit);
-    return Promise
+    if(!this._downloadContent) { this._downloadContent = {}; }
+    if(this._downloadContent[commit]) { return this.downloadContent[commit]; }
+    return this._downloadContent[commit] = Promise
       .resolve(fs.pathExists(downloaded))
       .then(exists => {
         if(!exists) { return; }
@@ -122,9 +124,11 @@ class Download5Dim {
    * @todo Don't unzip if already unpacked.
   */
   static unpackDownload(commit) {
+    if(!this._unpackDownload) { this._unpackDownload = {}; }
+    if(this._unpackDownload[commit]) { return this._unpackDownload[commit]; }
     let zipped = null;
     let unpacked = this.unpacked(commit);
-    return Promise
+    return tihs._unpackDownload[commit] = Promise
       .resolve(fs.pathExists(unpacked))
       .then(exists => {
         if(!exists) { return; }
