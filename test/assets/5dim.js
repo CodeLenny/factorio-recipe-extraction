@@ -128,7 +128,7 @@ class Download5Dim {
     if(this._unpackDownload[commit]) { return this._unpackDownload[commit]; }
     let zipped = null;
     let unpacked = this.unpacked(commit);
-    return tihs._unpackDownload[commit] = Promise
+    return this._unpackDownload[commit] = Promise
       .resolve(fs.pathExists(unpacked))
       .then(exists => {
         if(!exists) { return; }
