@@ -1,4 +1,8 @@
+const Promise = require("bluebird");
+const fs = require("fs-extra");
 const path = require("path");
+const tmp = require("tmp-promise");
+const unzip = require("unzipper");
 
 /**
  * An array of Factorio Mods, useful for documenting return types inside Promises.
@@ -47,8 +51,23 @@ class Mod {
    * @return {Promise<Mod>}
   */
   static loadFromZip(zip) {
-    let mod = new Mod();
-    return Promise.resolve(mod);
+    let tmpDir = null;
+    return tmp
+      .dir({ keep: true, unsafeCleanup: true })
+      .then(o => tmpDir = o)
+      .then(tmpDir => {
+        return fs
+          .createReadStream(zip)
+          .pipe(unzip.Extract({ path: tmpDir.path }))
+          .promise();
+        })
+      .then(() => fs.readdir(tmpDir.path))
+      .then(files => files[0])
+      .then(dir => {
+        let mod = new Mod(require(path.join(tmpDir.path, dir, "info.json")));
+        mod.addCleanup(tmpDir.cleanup);
+        return mod;
+      });
   }
 
   /**
@@ -79,6 +98,11 @@ class Mod {
      * @type {Array<ModDependency>}
     */
     this._parsedDependencies = this.parseDependencies();
+    /**
+     * A list of cleanup tasks that will remove temporary files.  Tasks can return a `Promise` for longer-running tasks.
+     * @type {Array<Function>}
+    */
+    this._cleanupTasks = [];
   }
 
   get name() { return this.manifest.name; }
@@ -89,6 +113,22 @@ class Mod {
     let extra = [];
     if(this.name === "base") { extra.push("core"); }
     return this.manifest.dependencies ? this.manifest.dependencies.concat(extra) : extra;
+  }
+
+  /**
+   * Add a task to execute when cleaning up this {@link Mod}.
+   * @param {Function} task the additional task to run during cleanup.  Can return a `Promise` for longer tasks.
+  */
+  addCleanup(task) {
+    this._cleanupTasks.push(task);
+  }
+
+  /**
+   * Run all cleanup tasks to remove temporary files used when creating the mod.
+   * @return {Promise} resolves when all temporary files have been cleaned up.
+  */
+  cleanup() {
+    return Promise.all(this._cleanupTasks);
   }
 
   /**

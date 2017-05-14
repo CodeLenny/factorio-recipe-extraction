@@ -36,6 +36,14 @@ describe("Mod.loadFromManifest", function() {
               .then(_m => _mod = _m);
           });
 
+          afterEach(function() {
+            let chain = Promise.resolve();
+            if(_mod) {
+              chain.then(() => _mod.cleanup());
+            }
+            return chain;
+          });
+
           it("reads the manifest file", function() {
             _mod.manifest.should.deep.equal(info);
           });
