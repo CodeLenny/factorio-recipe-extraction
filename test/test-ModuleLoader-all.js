@@ -53,8 +53,8 @@ describe("ModuleLoader#all", function() {
           mods.forEach(mod => mod.should.be.instanceof(Mod));
           let manifests = mods.filter(mod => typeof mod.manifest === "string").map(mod => mod.manifest);
           manifests.length.should.equal(2);
-          manifests.should.include(path.join(data.path, "base/info.json"));
-          manifests.should.include(path.join(data.path, "core/info.json"));
+          manifests.should.include(path.join(data.path, "base"));
+          manifests.should.include(path.join(data.path, "core"));
           let added = mods.filter(mod => typeof mod.zip === "string").map(mod => mod.zip);
           added.length.should.equal(files.length);
           added.forEach(zip => {

@@ -32,13 +32,13 @@ const DependencyType = {
 class Mod {
 
   /**
-   * Loads a Mod given the path to a manifest (`info.json`) file.
-   * @param {String} manifest the path to a manifest file (`info.json`) for a mod.  Must not be inside a zipped
+   * Loads an unpacked {@link Mod} by path.
+   * @param {String} dir the directory containing a manifest (`info.json`) file.
    *   directory.
    * @return {Promise<Mod>}
   */
-  static loadFromManifest(manifest) {
-    return Promise.resolve(new Mod(require(path.join(manifest, "info.json"))));
+  static loadFromManifest(dir) {
+    return Promise.resolve(new Mod(require(path.join(dir, "info.json"))));
   }
 
   /**

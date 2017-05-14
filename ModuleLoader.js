@@ -174,7 +174,7 @@ class ModuleLoader {
     return glob
       .promise("./*/info.json", { cwd: dataPath })
       .then(manifests =>
-        Promise.all( manifests.map(manifest => this.Mod.loadFromManifest(path.join(dataPath, manifest))) )
+        Promise.all( manifests.map(manifest => this.Mod.loadFromManifest(path.dirname(path.join(dataPath, manifest)))) )
       );
   }
 

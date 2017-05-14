@@ -30,8 +30,8 @@ describe("ModuleLoader#vanilla", function() {
           mods.length.should.equal(2);
           mods.forEach(mod => mod.should.be.instanceof(Mod));
           let paths = mods.map(mod => mod.manifest);
-          paths.should.include(path.join(data.path, "base/info.json"));
-          paths.should.include(path.join(data.path, "core/info.json"));
+          paths.should.include(path.join(data.path, "base"));
+          paths.should.include(path.join(data.path, "core"));
         });
       });
 
