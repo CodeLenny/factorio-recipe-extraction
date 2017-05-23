@@ -25,6 +25,10 @@ $(npm bin)/factorio-extractor # ...
 
 A NodeJS API allows you to use the recipe extractor in your own projects.
 
+```bash
+npm install --save factorio-recipe-extraction
+```
+
 ```js
 const path = require("path");
 const Extractor = require("factorio-recipe-extraction");
