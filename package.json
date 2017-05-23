@@ -5,7 +5,8 @@
   "main": "Extractor.js",
   "scripts": {
     "test": "nyc --reporter=html --reporter=text mocha",
-    "coverage": "nyc report --reporter=text-lcov | coveralls"
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "docs": "jsdoc -c jsdoc.json"
   },
   "repository": {
     "type": "git",
@@ -19,8 +20,10 @@
   "homepage": "https://github.com/CodeLenny/factorio-recipe-extraction#readme",
   "dependencies": {
     "bluebird": "^3.5.0",
+    "docdash": "^0.4.0",
     "fs-extra": "^3.0.1",
     "glob-promise": "^3.1.0",
+    "jsdoc": "^3.4.3",
     "nodelua": "github:huuugegames/NodeLua",
     "tmp-promise": "^1.0.3",
     "unzipper": "^0.8.8"
