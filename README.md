@@ -5,6 +5,22 @@
 
 Extracts recipes and items from [Factorio][], including recipes added from mods.
 
+## Command Line Usage
+
+Install NodeJS (v6 or later).
+
+Install system-wide:
+```bash
+npm install --global factorio-recipe-extraction
+factorio-extractor --output recipes.json --data ~/.factorio
+```
+
+Install into the local directory:
+```bash
+npm install factorio-recipe-extraction
+$(npm bin)/factorio-extractor # ...
+```
+
 ## Programmatic Usage
 
 A NodeJS API allows you to use the recipe extractor in your own projects.
