@@ -33,6 +33,7 @@
     "cheerio": "^0.22.0",
     "child-process-promise": "^2.2.1",
     "coveralls": "^2.13.1",
+    "gh-pages-travis": "^1.0.4",
     "mocha": "^3.3.0",
     "nyc": "^10.3.2",
     "request": "^2.81.0",
