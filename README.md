@@ -8,7 +8,8 @@ Extracts recipes and items from [Factorio][], including recipes added from mods.
 
 ## Command Line Usage
 
-Install NodeJS (v6 or later).
+Install NodeJS (v6 or later), and make sure Lua is installed on your system.
+You may need to also install `g++`.
 
 Install system-wide:
 ```bash
