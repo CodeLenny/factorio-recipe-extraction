@@ -6,6 +6,10 @@
 
 Extracts recipes and items from [Factorio][], including recipes added from mods.
 
+<div style="text-align: center;">
+  <img src="http://i.imgur.com/2xhn74P.png" />
+</div>
+
 ## Command Line Usage
 
 Install NodeJS (v6 or later), and make sure Lua is installed on your system.
