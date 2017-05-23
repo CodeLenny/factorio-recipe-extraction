@@ -1,5 +1,6 @@
 # Factorio Recipe Extraction
 
+[![npm](https://img.shields.io/npm/v/factorio-recipe-extraction.svg)](https://www.npmjs.com/package/factorio-recipe-extraction)
 [![Build Status](https://travis-ci.org/CodeLenny/factorio-recipe-extraction.svg?branch=master)](https://travis-ci.org/CodeLenny/factorio-recipe-extraction)
 [![Coverage Status](https://coveralls.io/repos/github/CodeLenny/factorio-recipe-extraction/badge.svg?branch=master)](https://coveralls.io/github/CodeLenny/factorio-recipe-extraction?branch=master)
 
