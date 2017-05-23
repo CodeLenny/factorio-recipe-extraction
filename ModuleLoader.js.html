@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>ModuleLoader.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Extractor.html">Extractor</a><ul class='methods'><li data-type='method'><a href="Extractor.html#addLuaPath">addLuaPath</a></li><li data-type='method'><a href="Extractor.html#clearLoadedPackages">clearLoadedPackages</a></li><li data-type='method'><a href="Extractor.html#extract">extract</a></li><li data-type='method'><a href="Extractor.html#filterFields">filterFields</a></li><li data-type='method'><a href="Extractor.html#getLuaPath">getLuaPath</a></li><li data-type='method'><a href="Extractor.html#setLuaPath">setLuaPath</a></li></ul></li><li><a href="Mod.html">Mod</a><ul class='methods'><li data-type='method'><a href="Mod.html#.loadFromManifest">loadFromManifest</a></li><li data-type='method'><a href="Mod.html#.loadFromZip">loadFromZip</a></li><li data-type='method'><a href="Mod.html#.versionGreater">versionGreater</a></li><li data-type='method'><a href="Mod.html#addCleanup">addCleanup</a></li><li data-type='method'><a href="Mod.html#cleanup">cleanup</a></li><li data-type='method'><a href="Mod.html#dependsOn">dependsOn</a></li><li data-type='method'><a href="Mod.html#parseDependencies">parseDependencies</a></li><li data-type='method'><a href="Mod.html#satisfiesDependency">satisfiesDependency</a></li></ul></li><li><a href="ModuleLoader.html">ModuleLoader</a><ul class='methods'><li data-type='method'><a href="ModuleLoader.html#added">added</a></li><li data-type='method'><a href="ModuleLoader.html#all">all</a></li><li data-type='method'><a href="ModuleLoader.html#enabled">enabled</a></li><li data-type='method'><a href="ModuleLoader.html#parseOpts">parseOpts</a></li><li data-type='method'><a href="ModuleLoader.html#sortedDependencies">sortedDependencies</a></li><li data-type='method'><a href="ModuleLoader.html#vanilla">vanilla</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#camelCase">camelCase</a></li><li><a href="global.html#DependencyType">DependencyType</a></li><li><a href="global.html#objMap">objMap</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">ModuleLoader.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const Promise = require("bluebird");
+const fs = Promise.promisifyAll(require("fs"));
+const path = require("path");
+const glob = require("glob-promise");
+const Mod = require("./Mod");
+
+/**
+ * Options to configure finding modules.
+ * @typedef {Object} ModuleLoaderOptions
+ * @property {String} factorioPath **Required** The directory where Factorio is installed.
+ * @property {String} factorioDataPath the directory containing Factorio's core mods.
+ *   Defaults to `factorioPath + "/data"`.
+ * @property {String} factorioModPath the directory containing user-added mods.  Defaults to `factorioPath + "/mods"`
+ * @property {String} factorioModList the JSON file listing which mods are enabled.  Defaults to
+ *   `factorioModPath + "/mod-list.json"`
+ * @property {Boolean} vanilla if `true`, the vanilla game components will be added to the output.  Defaults to `true`.
+ * @property {Boolean} added if `true`, user-added mods will be added to the output.  Defaults to `true`.
+*/
+
+/**
+ * Locates Factorio modules, determines dependencies, and filters by enabled mods.
+*/
+class ModuleLoader {
+
+  /**
+   * The `Mod` class to use when creating new `Mod` instances.  Can be overridden for testing, etc.
+  */
+  get Mod() {
+    return this._Mod || Mod;
+  }
+
+  set Mod(_Mod) { this._Mod = _Mod; }
+
+  /**
+   * The default loading options.
+   * @type {ModuleLoaderOptions}
+   * @private
+  */
+  static get defaultLoadOptions() {
+    return {
+      vanilla: true,
+      added: true,
+    };
+  }
+
+  /**
+   * @param {ModuleLoaderOptions} loadOpts default options to use when searching for mods.
+  */
+  constructor(loadOpts) {
+    /**
+     * The default options to use when searching for mods.
+     * @type {ModuleLoaderOptions}
+     * @private
+    */
+    this._loadOpts = loadOpts;
+  }
+
+  /**
+   * Merge the temporary options with the default options for this class instance and the global default options,
+   * including processing dependent options (like `factorioDataPath` defaulting to `factorioPath + "/data"`)
+   * @param {ModuleLoaderOptions} opts the current instance options
+   * @return {ModuleLoaderOptions} the merged options
+   * @private
+  */
+  parseOpts(opts) {
+    /** @type {ModuleLoaderOptions} */
+    opts = Object.assign({}, this.constructor.defaultLoadOptions, this._loadOpts, opts);
+    /*if(!opts.factorioPath) {
+      throw new ReferenceError("'factorioPath' is a required option for the module loader, yet was not provided.");
+    }*/
+    if(!opts.factorioDataPath &amp;&amp; opts.factorioPath) {
+      opts.factorioDataPath = opts.factorioPath + "/data";
+    }
+    if(!opts.factorioModPath &amp;&amp; opts.factorioPath) {
+      opts.factorioModPath = opts.factorioPath + "/mods";
+    }
+    if(!opts.factorioModList &amp;&amp; opts.factorioModPath) {
+      opts.factorioModList = opts.factorioModPath + "/mod-list.json";
+    }
+    return opts;
+  }
+
+  /**
+   * Find all Factorio Mods installed.
+   * @param {ModuleLoaderOptions} opts options to control searching for mods.
+   * @return {Promise&lt;ModArray>} all mods installed.
+   * @todo Test returning only `vanilla` or only `added`
+  */
+  all(opts) {
+    opts = this.parseOpts(opts);
+    return Promise
+      .all([
+        opts.vanilla ? this.vanilla(opts.factorioDataPath) : [],
+        opts.added ? this.added(opts.factorioModPath) : [],
+      ])
+      .then((...args) => {
+        let groups = [].concat(...args);
+        return [].concat(...groups);
+      });
+  }
+
+  /**
+   * Find all Factorio Mods that are enabled.
+   * @param {ModArray} [mods] **Optional** The mods to filter.  Defaults to searching for all mods.
+   * @param {ModuleLoaderOptions} [opts] options to control searching for mods.
+   * @return {Promise&lt;ModArray>} all mods installed and enabled.
+  */
+  enabled(mods, opts) {
+    opts = this.parseOpts(opts);
+    if(!mods) { mods = this.all(opts); }
+    let modList = require(opts.factorioModList);
+    let enabled = modList.mods.filter(mod => mod.enabled).map(mod => mod.name);
+    return Promise
+      .resolve(mods)
+      .then((mods) => mods.filter(mod => enabled.indexOf(mod.name) > -1));
+  }
+
+  /**
+   * Sort Factorio mods, so mods with dependencies are loaded after the dependencies.
+   * @param {ModArray} [mods] **Optional** The mods to sort.  Defaults to searching for all mods.
+   * @return {Promise&lt;ModArray>} resolves to a sorted list of the given mods.
+   * @see {@link https://bitbucket.org/Nicksaurus/foreman/src/46053df/Foreman/DependencyGraph.cs#DependencyGraph.cs-43}
+  */
+  sortedDependencies(mods) {
+    if(!mods) { mods = this.all(); }
+    return Promise
+      .resolve(mods)
+      .then((mods) => {
+
+        let sorted = [];
+
+        let adjacencyMatrix = mods.map(i => mods.map(j => i.dependsOn(j) ? 1 : 0));
+
+        // Get all mods with no incoming dependencies
+        let s = mods.filter((mod, i) => mods.every((mod2, j) => adjacencyMatrix[j][i] !== 1 ));
+
+        /**
+         * Loop through mods that have no dependencies, or have dependencies already resolved.
+         * Add each to a sorted array, and see if any dependencies in the matrix now have resolved dependencies.
+        */
+        while(s.length > 0) {
+          let mod = s.shift();
+          sorted.push(mod);
+          let modIndex = mods.indexOf(mod);
+
+          /**
+           * Loop through all mods.  If they were dependent on us, we've already been added to the sorted list and they
+           * should no longer be waiting for us.
+           * So, remove that dependency if we find one.  Now that they are waiting for one less item, see if all of the
+           * dependencies have been added.  If so, they can be added to the list of resolved mods (`s`) and added to the
+           * output in a later round.
+          */
+          for(let m = 0; m &lt; mods.length; m++) {
+            if(adjacencyMatrix[modIndex][m] === 0) { continue; }
+            adjacencyMatrix[modIndex][m] = 0;
+            let resolved = mods.every((_, i) => adjacencyMatrix[i][m] === 0);
+            if(resolved) { s.push(mods[m]); }
+          }
+        }
+
+        return sorted.reverse();
+
+      });
+  }
+
+  /**
+   * Finds the vanilla game components.
+   * @param {String} dataPath the path to the `data` directory inside a Factorio install, where internal mods are
+   *   located.
+   * @return {Promise&lt;ModArray>}
+   * @private
+  */
+  vanilla(dataPath) {
+    return glob
+      .promise("./*/info.json", { cwd: dataPath })
+      .then(manifests =>
+        Promise.all( manifests.map(manifest => this.Mod.loadFromManifest(path.dirname(path.join(dataPath, manifest)))) )
+      );
+  }
+
+  /**
+   * Finds user-added game components.
+   * @return {Promise&lt;ModArray>}
+   * @private
+  */
+  added(modPath) {
+    return glob
+      .promise("./*.zip", { cwd: modPath })
+      .then(zips =>
+        Promise.all( zips.map(zip => this.Mod.loadFromZip(path.join(modPath, zip))) )
+      );
+  }
+
+}
+
+module.exports = ModuleLoader;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Tue May 23 2017 00:28:56 GMT+0000 (UTC) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Mod.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Extractor.html">Extractor</a><ul class='methods'><li data-type='method'><a href="Extractor.html#addLuaPath">addLuaPath</a></li><li data-type='method'><a href="Extractor.html#clearLoadedPackages">clearLoadedPackages</a></li><li data-type='method'><a href="Extractor.html#extract">extract</a></li><li data-type='method'><a href="Extractor.html#filterFields">filterFields</a></li><li data-type='method'><a href="Extractor.html#getLuaPath">getLuaPath</a></li><li data-type='method'><a href="Extractor.html#setLuaPath">setLuaPath</a></li></ul></li><li><a href="Mod.html">Mod</a><ul class='methods'><li data-type='method'><a href="Mod.html#.loadFromManifest">loadFromManifest</a></li><li data-type='method'><a href="Mod.html#.loadFromZip">loadFromZip</a></li><li data-type='method'><a href="Mod.html#.versionGreater">versionGreater</a></li><li data-type='method'><a href="Mod.html#addCleanup">addCleanup</a></li><li data-type='method'><a href="Mod.html#cleanup">cleanup</a></li><li data-type='method'><a href="Mod.html#dependsOn">dependsOn</a></li><li data-type='method'><a href="Mod.html#parseDependencies">parseDependencies</a></li><li data-type='method'><a href="Mod.html#satisfiesDependency">satisfiesDependency</a></li></ul></li><li><a href="ModuleLoader.html">ModuleLoader</a><ul class='methods'><li data-type='method'><a href="ModuleLoader.html#added">added</a></li><li data-type='method'><a href="ModuleLoader.html#all">all</a></li><li data-type='method'><a href="ModuleLoader.html#enabled">enabled</a></li><li data-type='method'><a href="ModuleLoader.html#parseOpts">parseOpts</a></li><li data-type='method'><a href="ModuleLoader.html#sortedDependencies">sortedDependencies</a></li><li data-type='method'><a href="ModuleLoader.html#vanilla">vanilla</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#camelCase">camelCase</a></li><li><a href="global.html#DependencyType">DependencyType</a></li><li><a href="global.html#objMap">objMap</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">Mod.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const Promise = require("bluebird");
+const fs = require("fs-extra");
+const path = require("path");
+const tmp = require("tmp-promise");
+const unzip = require("unzipper");
+
+/**
+ * An array of Factorio Mods, useful for documenting return types inside Promises.
+ * Use `{Promise&lt;ModArray>}` instead of `{Promise&lt;Array&lt;Mod>>}`.
+ * @typedef {Array&lt;Mod>} ModArray
+*/
+
+/**
+ * The possible types of a module dependency.
+ * @enum {String}
+ * @readonly
+*/
+const DependencyType = {
+  EqualTo: "=",
+  GreaterThan: ">",
+  GreaterThanOrEqual: ">=",
+};
+
+/**
+ * The details of a mod dependency.
+ * @typedef {Object} ModDependency
+ * @property {Boolean} optional `true` if the mod dependency is optional.
+ * @property {String} name the name of the required mod.
+ * @property {DependencyType} type the type of dependency.
+ * @property {String} version the version dependency of the mod.  Defaults to `"0.0.0.0"`.
+*/
+
+/**
+ * A Factorio mod.
+*/
+class Mod {
+
+  /**
+   * Loads an unpacked {@link Mod} by path.
+   * @param {String} dir the directory containing a manifest (`info.json`) file.
+   *   directory.
+   * @return {Promise&lt;Mod>}
+  */
+  static loadFromManifest(dir) {
+    let mod = new Mod(require(path.join(dir, "info.json")), dir);
+    return Promise.resolve(mod);
+  }
+
+  /**
+   * Loads a Mod given the path to the mod's zipped data.
+   * @param {String} zip the patht to a zipped mod directory.
+   * @return {Promise&lt;Mod>}
+  */
+  static loadFromZip(zip) {
+    let tmpDir = null;
+    return tmp
+      .dir({ unsafeCleanup: true })
+      .then(o => tmpDir = o)
+      .then(tmpDir => {
+        return fs
+          .createReadStream(zip)
+          .pipe(unzip.Extract({ path: tmpDir.path }))
+          .promise();
+        })
+      .then(() => fs.readdir(tmpDir.path))
+      .then(files => files[0])
+      .then(dir => {
+        let mod = new Mod(require(path.join(tmpDir.path, dir, "info.json")), path.join(tmpDir.path, dir));
+        mod.addCleanup(tmpDir.cleanup);
+        return mod;
+      });
+  }
+
+  /**
+   * Checks that the version is larger than the test version.
+   * @param {String} version the version that should be larger.
+   * @param {String} test the version that should be smaller.
+   * @return {Boolean} `true` if `version` is larger than `test`.
+  */
+  static versionGreater(version, test) {
+    version = version.split(".");
+    test = test.split(".");
+    for(let i = 0; i &lt; test.length; i++) {
+      let v = parseInt(version[i], 10);
+      let t = parseInt(test[i], 10);
+      if(v > t) { return true; }
+      if(v &lt; t) { return false; }
+    }
+    return false; // versions are equal.
+  }
+
+  /**
+   * @param {Object} manifest the manifest file for this mod.
+   * @param {String} directory the location for mod files.
+  */
+  constructor(manifest, directory) {
+    this.manifest = manifest;
+    this.dir = directory;
+    /**
+     * Other mods that this mod is dependent on.
+     * @type {Array&lt;ModDependency>}
+    */
+    this._parsedDependencies = this.parseDependencies();
+    /**
+     * A list of cleanup tasks that will remove temporary files.  Tasks can return a `Promise` for longer-running tasks.
+     * @type {Array&lt;Function>}
+    */
+    this._cleanupTasks = [];
+  }
+
+  get name() { return this.manifest.name; }
+
+  get version() { return this.manifest.version || "0.0.0.0"; }
+
+  get dependencies() {
+    let extra = [];
+    if(this.name === "base") { extra.push("core"); }
+    return this.manifest.dependencies ? this.manifest.dependencies.concat(extra) : extra;
+  }
+
+  /**
+   * Add a task to execute when cleaning up this {@link Mod}.
+   * @param {Function} task the additional task to run during cleanup.  Can return a `Promise` for longer tasks.
+  */
+  addCleanup(task) {
+    this._cleanupTasks.push(task);
+  }
+
+  /**
+   * Run all cleanup tasks to remove temporary files used when creating the mod.
+   * @return {Promise} resolves when all temporary files have been cleaned up.
+  */
+  cleanup() {
+    return Promise.all(this._cleanupTasks.map(task => task()));
+  }
+
+  /**
+   * Determines if this mod satisfies the given dependency selection.
+   * @param {ModDependency} dep the dependency to check against.
+   * @return {Boolean} `true` if the mod satisfies the dependency.
+  */
+  satisfiesDependency(dep) {
+    return this.name === dep.name &amp;&amp; (
+      typeof dep.version !== "string" ||
+      (
+        (dep.type === DependencyType.EqualTo || dep.type === DependencyType.GreaterThanOrEqual) &amp;&amp;
+        dep.version === this.version
+      ) ||
+      (
+        (dep.type === DependencyType.GreaterThan || dep.type === DependencyType.GreaterThanOrEqual) &amp;&amp;
+        this.constructor.versionGreater(this.version, dep.version)
+      )
+    );
+  }
+
+  /**
+   * Determines if this mod depends on the given mod.
+   * @param {Mod} mod the mod to compare
+   * @param {Boolean} ignoreOptional if `true`, optional dependencies are not compared.  Defaults to `false`.
+   * @return {Boolean} `true` if this mod depends on the given mod.
+  */
+  dependsOn(mod, ignoreOptional) {
+    let deps = ignoreOptional ? this._parsedDependencies.filter(dep => !dep.optional) : this._parsedDependencies;
+    return deps.some(dep => mod.satisfiesDependency(dep));
+  }
+
+  /**
+   * Parse the dependencies listed for this mod.
+   * @return {Array&lt;ModDependency>}
+   * @private
+  */
+  parseDependencies() {
+    return this.dependencies.map(d => {
+      let dep = d.split(" ");
+      let optional = false;
+      let name, type, version;
+      if(dep[0] === "?") {
+        optional = true;
+        dep.shift();
+      }
+      [name, type, version] = dep;
+      if(!version) { version = "0.0.0.0"; }
+      return {optional, name, type, version};
+    });
+  }
+
+}
+
+module.exports = Mod;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Tue May 23 2017 00:28:56 GMT+0000 (UTC) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
