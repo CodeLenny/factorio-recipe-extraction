@@ -2,7 +2,7 @@
   "name": "factorio-recipe-extraction",
   "version": "0.0.0",
   "description": "Extracts recipes from Factorio, including recipes added from mods.",
-  "main": "index.js",
+  "main": "Extractor.js",
   "scripts": {
     "test": "nyc --reporter=html --reporter=text mocha",
     "coverage": "nyc report --reporter=text-lcov | coveralls"
