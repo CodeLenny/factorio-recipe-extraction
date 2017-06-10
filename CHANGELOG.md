@@ -4,7 +4,7 @@
 
 ### Added
 
-- `eslint` code linting
+- `eslint` code linting (and fixed lint errors).
 
 ### Fixed
 

@@ -39,7 +39,7 @@ class Mod {
    * Loads an unpacked {@link Mod} by path.
    * @param {String} dir the directory containing a manifest (`info.json`) file.
    *   directory.
-   * @return {Promise<Mod>}
+   * @return {Promise<Mod>} the loaded {@link Mod}.
   */
   static loadFromManifest(dir) {
     let mod = new Mod(require(path.join(dir, "info.json")), dir);
@@ -49,7 +49,7 @@ class Mod {
   /**
    * Loads a Mod given the path to the mod's zipped data.
    * @param {String} zip the patht to a zipped mod directory.
-   * @return {Promise<Mod>}
+   * @return {Promise<Mod>} the loaded {@link Mod}.
   */
   static loadFromZip(zip) {
     let tmpDir = null;
@@ -61,7 +61,7 @@ class Mod {
           .createReadStream(zip)
           .pipe(unzip.Extract({ path: tmpDir.path }))
           .promise();
-        })
+      })
       .then(() => fs.readdir(tmpDir.path))
       .then(files => files[0])
       .then(dir => {
@@ -121,6 +121,7 @@ class Mod {
   /**
    * Add a task to execute when cleaning up this {@link Mod}.
    * @param {Function} task the additional task to run during cleanup.  Can return a `Promise` for longer tasks.
+   * @return {void}
   */
   addCleanup(task) {
     this._cleanupTasks.push(task);
@@ -166,7 +167,7 @@ class Mod {
 
   /**
    * Parse the dependencies listed for this mod.
-   * @return {Array<ModDependency>}
+   * @return {Array<ModDependency>} the dependencies for this mod.
    * @private
   */
   parseDependencies() {
@@ -178,7 +179,7 @@ class Mod {
         optional = true;
         dep.shift();
       }
-      [name, type, version] = dep;
+      [ name, type, version ] = dep;
       if(!version) { version = "0.0.0.0"; }
       return {optional, name, type, version};
     });

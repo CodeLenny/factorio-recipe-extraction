@@ -16,10 +16,10 @@ const nodelua = require("nodelua");
 */
 function objMap(obj, cb) {
   let out = {};
-  for(var k in obj) {
+  for(const k in obj) {
     if(!obj.hasOwnProperty(k)) { continue; }
-    val = cb(k, obj[k], obj);
-    if(val !== undefined) { out[k] = val; };
+    const val = cb(k, obj[k], obj);
+    if(val !== undefined) { out[k] = val; }
   }
   return out;
 }
@@ -99,13 +99,13 @@ class Extractor {
    * @type {Array<String>}
   */
   static get itemTypes() {
-    return ["item", "fluid", "capsule", "module", "ammo", "gun", "armor", "blueprint", "deconstruction-item",
-     "mining-tool", "repair-tool", "tool"];
-   }
+    return [ "item", "fluid", "capsule", "module", "ammo", "gun", "armor", "blueprint", "deconstruction-item",
+      "mining-tool", "repair-tool", "tool" ];
+  }
 
-   static get dataTypes() {
-     return ["recipe", "assembling-machine", "furnace", "mining-drill", "resource", "module"];
-   }
+  static get dataTypes() {
+    return [ "recipe", "assembling-machine", "furnace", "mining-drill", "resource", "module" ];
+  }
 
   /**
    * @param {String} gamePath the path to the Factorio directory - contains "mods", "config", "data", etc.
@@ -115,7 +115,7 @@ class Extractor {
   constructor(gamePath, output) {
     this.gamePath = gamePath;
     this.output = output || path.join(__dirname, "_extracted.json");
-    this.lua = Promise.promisifyAll(new nodelua.LuaState('lua'));
+    this.lua = Promise.promisifyAll(new nodelua.LuaState("lua"));
     this._mods = [];
   }
 
@@ -152,7 +152,7 @@ class Extractor {
               .then(() => this.clearLoadedPackages())
               .then(() => fs.readFile(scriptPath, "utf8"))
               .then((script) => this.lua.doStringAsync(script))
-              .catch({code: 'ENOENT'}, (e) => { return true; })
+              .catch({code: "ENOENT"}, () => { return true; })
               .catch((e) => {
                 this._luaErrors++;
                 console.log(e.message);
@@ -226,7 +226,7 @@ class Extractor {
 
   /**
    * Filters out repetitive fields to reduce the file output size.
-   * @param {Object} obj the object to filter
+   * @param {Object} objs the object to filter
    * @param {Object} filters fields to filter out.  `{<key>: <value>}` any keys matching `key` will be checked against
    *   `value`.  If `value` is a string and matches, then the key/value will be deleted from `obj`.  If `value` is a
    *   function, it will be provided the current value in the object, and it's return value will be used as the new
