@@ -1,6 +1,6 @@
 {
   "name": "factorio-recipe-extraction",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Extracts recipes from Factorio, including recipes added from mods.",
   "main": "Extractor.js",
   "bin": {
