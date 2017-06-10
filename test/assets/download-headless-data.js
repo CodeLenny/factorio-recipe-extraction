@@ -13,11 +13,19 @@ const cheerio = require("cheerio");
 const exec = require("child-process-promise").exec;
 
 // `null` to download all
-const version = /0\.14.*/;
+const versions = [
+  /0\.14.*/,
+];
 
-function filterVersions(versions) {
-  if(version) {
-    return versions.filter(url => version.test(url));
+/**
+ * Given the versions available from the Factorio download page,
+ * filter out versions that aren't selected to download (listed in `versions`)
+ * @param {Array<String>} given the Factorio versions given as possible downloads
+ * @return {Array<String>} the versions that should be downloaded, if any.
+*/
+function filterVersions(given) {
+  if(versions) {
+    return given.filter(url => versions.some(version => version.test(url)));
   }
   return versions;
 }
