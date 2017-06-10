@@ -15,6 +15,7 @@ const exec = require("child-process-promise").exec;
 // `null` to download all
 const versions = [
   /0\.14.*/,
+  /0\.15\.19/,
 ];
 
 /**
