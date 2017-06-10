@@ -10,6 +10,13 @@ Extracts recipes and items from [Factorio][], including recipes added from mods.
   <img src="http://i.imgur.com/2xhn74P.png" />
 </div>
 
+## Factorio 0.15 Status
+
+This program was designed for Factorio v0.14.  Basic changes (#1 - big thanks to @sdobz) have been implemented so the
+extractor doesn't crash on v0.15, but the code ignores the added difficulty factor.
+
+If the program crashes on 0.15 or doesn't output data added to the game (scenarios, etc.), please create an [issue][]!
+
 ## Command Line Usage
 
 Install NodeJS (v6 or later), and make sure Lua is installed on your system.
@@ -54,6 +61,7 @@ extractor
 Thanks go out to Nicholas Powell for creating [Foreman][foreman], from which the basic structure for recipe extraction
 was based upon.
 
+[issue]: https://github.com/CodeLenny/factorio-recipe-extraction/issues
 [Factorio]: https://www.factorio.com/
 [api-Extractor]: https://codelenny.github.io/factorio-recipe-extraction/Extractor.html
 [foreman]: https://bitbucket.org/Nicksaurus/foreman/
