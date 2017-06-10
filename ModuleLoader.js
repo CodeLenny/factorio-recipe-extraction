@@ -1,5 +1,4 @@
 const Promise = require("bluebird");
-const fs = Promise.promisifyAll(require("fs"));
 const path = require("path");
 const glob = require("glob-promise");
 const Mod = require("./Mod");
@@ -167,7 +166,7 @@ class ModuleLoader {
    * Finds the vanilla game components.
    * @param {String} dataPath the path to the `data` directory inside a Factorio install, where internal mods are
    *   located.
-   * @return {Promise<ModArray>}
+   * @return {Promise<ModArray>} The "mods" shipped with the vanilla game.
    * @private
   */
   vanilla(dataPath) {
@@ -180,7 +179,9 @@ class ModuleLoader {
 
   /**
    * Finds user-added game components.
-   * @return {Promise<ModArray>}
+   * @param {String} modPath the path to the `mods` directory inside a Factorio install, where user-added mods are
+   *   located.
+   * @return {Promise<ModArray>} The mods installed by the user.
    * @private
   */
   added(modPath) {

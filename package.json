@@ -7,7 +7,9 @@
     "factorio-extractor": "bin/factorio-extractor.js"
   },
   "scripts": {
-    "test": "nyc --reporter=html --reporter=text mocha",
+    "test": "npm-run-all lint unit-test",
+    "unit-test": "nyc --reporter=html --reporter=text mocha",
+    "lint": "eslint .",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "docs": "jsdoc -c jsdoc.json"
   },
@@ -33,12 +35,15 @@
     "unzipper": "^0.8.8"
   },
   "devDependencies": {
+    "@codelenny/eslint-rules": "^0.1.0",
     "chai": "^3.5.0",
     "cheerio": "^0.22.0",
     "child-process-promise": "^2.2.1",
     "coveralls": "^2.13.1",
+    "eslint": "^3.19.0",
     "gh-pages-travis": "^1.0.4",
     "mocha": "^3.3.0",
+    "npm-run-all": "^4.0.2",
     "nyc": "^10.3.2",
     "request": "^2.81.0",
     "request-promise": "^4.2.1"
