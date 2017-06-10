@@ -48,11 +48,25 @@ function download(url, dest) {
   });
 }
 
-let urls = request("https://www.factorio.com/download-headless")
-  .then(cheerio.load)
-  .then($ => $("a[href^='/get-download/']").map((i, el) => $(el).attr("href")).get())
+/**
+ * Get the download links for Factorio versions from the "download-headless" page.
+ * @param {String} url the headless download page to query
+ * @return {Promise<Array<String>>} resolves to the different download links.
+*/
+function getDownloadLinks(url) {
+  return request(url)
+    .then(cheerio.load)
+    .then($ => $("a[href^='/get-download/']").map((i, el) => $(el).attr("href")).get());
+}
+
+let urls = Promise
+  .all([
+    getDownloadLinks("https://www.factorio.com/download-headless"),
+    getDownloadLinks("https://www.factorio.com/download-headless/experimental"),
+  ])
+  .then(([standard, experimental]) => [ ...standard, ...experimental ])
   .then(filterVersions)
-  .then(versions => versions.map(version => `https://www.factorio.com/${version}`))
+  .then(versions => versions.map(version => `https://www.factorio.com/${version}`));
 
 let outDir = null;
 
