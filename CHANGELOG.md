@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- `eslint` code linting
+
 ### Fixed
 
 - Public PRs should pass Travis CI testing (added `if` statement to exclude commands that require Travis secret

@@ -32,7 +32,8 @@ env:
 
 script:
   - node test/assets/download-headless-data.js
-  - npm test
+  - npm run lint
+  - npm run unit-test
   - npm run-script docs
   - '"$(npm bin)/gh-pages-travis"'
 
