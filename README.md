@@ -19,7 +19,7 @@ If the program crashes on 0.15 or doesn't output data added to the game (scenari
 
 ## Command Line Usage
 
-Install NodeJS (v6 or later), and make sure Lua is installed on your system.
+Install NodeJS (v6 or later) and Lua5.1 (you MUST have 5.1, `nodelua` fails on later versions!).
 You may need to also install `g++`.
 
 Install system-wide:
