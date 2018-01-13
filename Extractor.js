@@ -119,6 +119,14 @@ class Extractor {
     this._mods = [];
   }
 
+  get modDirectory() {
+    return path.join(this.gamePath, "mods");
+  }
+
+  get modSettingsFile() {
+    return path.join(this.modDirectory, "mod-settings.json");
+  }
+
   /**
    * Extract all of the game data, and save into a `json` file.
    * @return {Promise} resolves once all tasks have been run.
@@ -136,6 +144,8 @@ class Extractor {
       .then(path => basePath = path)
       .then(() => this.lua.doFileAsync(dataloader))
       .then(() => this.lua.doStringAsync(this.constructor.utilScript))
+      .then(() => this.readModSettings())
+      .then(settings => this.lua.doStringAsync(settings))
       .then(() => moduleLoader.enabled())
       .then(mods => moduleLoader.sortedDependencies(mods))
       .then(mods => {
@@ -179,6 +189,35 @@ class Extractor {
       })
       .then(data => fs.writeFile(this.output, JSON.stringify(data)))
       .finally(() => Promise.all(this._mods.map(mod => mod.cleanup())));
+  }
+
+  async readModSettings() {
+
+    let settings = `
+      settings = {}
+      settings.startup = {}
+    `;
+
+    let modSettings;
+    try {
+      modSettings = require(this.modSettingsFile);
+    }
+    catch (err) {
+      console.error(`Couldn't read 'mod-settings.json': ${err}.  Continuing.`);
+      return settings;
+    }
+
+    for(var section in modSettings.startup) {
+      if(!modSettings.startup.hasOwnProperty(section)) { continue; }
+      const val = modSettings.startup[section].value;
+      settings = `
+        ${settings}
+        settings.startup["${section}"] = {};
+        settings.startup["${section}"].value = ${value.toLowerCase()}
+      `;
+    }
+
+    return settings;
   }
 
   /**
