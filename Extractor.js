@@ -207,13 +207,13 @@ class Extractor {
       return settings;
     }
 
-    for(var section in modSettings.startup) {
+    for(const section in modSettings.startup) {
       if(!modSettings.startup.hasOwnProperty(section)) { continue; }
       const val = modSettings.startup[section].value;
       settings = `
         ${settings}
         settings.startup["${section}"] = {};
-        settings.startup["${section}"].value = ${value.toLowerCase()}
+        settings.startup["${section}"].value = ${val.toLowerCase()}
       `;
     }
 

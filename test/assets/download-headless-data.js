@@ -16,6 +16,7 @@ const exec = require("child-process-promise").exec;
 const versions = [
   /0\.14.*/,
   /0\.15\.19/,
+  /0\.16\.*/,
 ];
 
 /**
